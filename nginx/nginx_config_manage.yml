@@ -1,0 +1,62 @@
+#若是需要添加整个的配置文件需要先在ansible主机上面将该文件写好，然后通过ansible拷贝到目标的主机
+---
+- host: nginx
+  remote_host: root
+  tasks:
+    - name: copy local file to nginx instance of ubuntu
+      copy:
+        src: <本地配置文件的路径>
+        dest: /etc/nginx/site-available/<配置文件名>
+      when: ansible_distribution == 'Ubuntu' 
+
+    - name: create a link
+      file:
+        src: /etc/nginx/site-available/<配置文件名>
+        dest: /etc/nginx/site-enabled/<配置文件名>
+        state: link
+      when: ansible_distribution == 'Ubuntu'
+     
+    - name: copy local file to nginx instance of centos or redhat
+      copy:
+        src: <本地配置文件的路径>
+        dest: /etc/nginx/conf.d/<配置文件名>
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Redhat'
+
+    - name: reload nginx
+      shell: nginx -s reload
+
+---------------------------------------------------------------------------------------------
+
+#以下为操作nginx配置文件的脚本，主要包括：增删改查
+
+--- 
+- host: nginx
+  remote_host: root
+  tasks: 
+    - name: 添加配置
+      lineinfile:
+        path: <配置文件路径>
+        insertbefore: <在某个匹配内容前面添加>
+        insertafter: <在某个匹配内容后面添加内容>
+        line: <需要添加的配置>
+        backrefs: yes  
+    - name: 更改配置
+      lineinfile:
+        dest: <配置文件路径>
+        regexp: '<需要更改的配置>'
+        line: '目标的配置'
+        backrefs: yes
+    - name: 删除特定的配置
+      lineinfile:
+        dest: <配置文件路径>
+        state: absent
+        regexp: <需要删除的配置>
+        backrefs: yes
+
+    - name: 查询特定的配置文件
+      command: cat <配置文件路径>
+      
+      
+
+   
+           

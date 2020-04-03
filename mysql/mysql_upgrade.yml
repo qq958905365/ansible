@@ -1,0 +1,63 @@
+---
+- host: mysql
+  remote_host: root
+  tasks:
+    - name: 如果mysql是集群那么就需要先检查集群的健康性
+      shell: "<健康检测脚本>"
+      register: health_result
+      failed_when: health_result.rc == 0
+
+    - name: 识别mysql节点是否为master节点
+      shell: "<master检测脚本>"
+      changed_when: false
+      run_once: true
+      register: master_node_result
+      faild_when: master_node_result.stdout == ""
+
+    - set_fact:
+        master_node: "{{ master_node_result.stdout }}"
+
+    - name: 如果有需要修改配置文件的话,可以增删改查
+      lineinfile:
+        path: /etc/my.cnf
+        regexp: <匹配的配置>
+        line: <需要修改的行>
+
+    - name: 关闭mysql slave 连接
+      command: <断掉slave连接的脚本>
+      when: master_node_result.stdout_lines == "slave"
+
+    - name: 停止mysql
+      service:
+        name: mysql
+        state: stopped
+      when: master_node_result.stdout_lines == "slave"
+
+    - name: 卸载老数据库包
+      command: "rpm -qa|grep mysql"
+      when: master_node_result.stdout_lines == "slave"
+
+    - name: 安装新的包，例如mysql 5.7
+      yum:
+        name:
+          - <mysql包>
+        state: present
+      when: master_node_result.stdout_lines == "slave"
+    - name: 启动mysql
+      service:
+        name: mysql
+        state: started
+      when: master_node_result.stdout_lines == "slave"
+      
+    - name: 将master切换到从节点
+      shell: <master切换脚本>
+      when: master_node_result.stdout_lines == "master"
+      
+    - name: 升级主节点
+      command: <升级主节点>
+      when: master_node_result.stdout_lines == "master"
+     
+    - name: 检查集群的健康性
+      shell: <集群健康检测脚本>
+      when: master_node_result.stdout_lines == "master"
+

@@ -1,0 +1,45 @@
+ansible install
+
+1）若系统为centos或者redhat
+    sudo yum install epel-release && sudo yum install ansible
+   若系统为ubuntu
+    sudo apt-get install software-properties-common
+    sudo apt-add-repository ppa:ansible/ansible
+    sudo apt-get update
+    sudo apt-get install ansible
+
+二）配置ansible的hosts，将不同用途的主机进行分类
+    vim /etc/ansible/hosts
+    [centos]
+    ......
+    [redhat]
+    ......
+    [ubuntu]
+    ......
+    [mysql]
+    ......
+    [redis]
+    ......
+    [java]
+    ......
+    [python]
+    ......
+    [elasticsearch]
+    ......
+    [nginx]
+    ......
+    
+    
+三）配置远程登陆
+    若远程主机为centos或redhat系统那么
+    ssh-copy-id -i ~/.ssh/id_rsa.pub centos@<远程主机>  
+    若远程主机为ubuntu系统那么
+    ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@<远程主机>
+    配置root的远程登陆
+    ssh-copy-id -i ~/.ssh/id_rsa.pub root@<远程主机>    
+
+四）连通性测试
+    ansible centos -m ping --user=centos -f 20
+    ansible redhat -m ping --user=centos -f 20
+    ansible ubuntu -m ping --user=ubuntu -f 20
+    ansible all -m ping --user=root -f 20

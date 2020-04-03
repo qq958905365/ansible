@@ -1,0 +1,25 @@
+---
+- hosts: python
+  remote_user: root 
+  become: true
+  tasks:
+  - name: install python for centos
+    yum:
+      name: "{{ item }}"
+      state: installed
+    with_items:
+      - python-devel
+      - python-setuptools
+    when: ansible_distribution == 'CentOS' or ansible_distribution == 'Redhat'
+
+  - name: install python for ubuntu
+    apt:
+      name: "{{ item }}"
+      state: latest
+      update_cache: yes
+    with_items:
+      - libpython-dev
+      - python-setuptools
+    when: ansible_distribution == 'Ubuntu'
+
+

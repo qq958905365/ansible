@@ -1,0 +1,20 @@
+---
+- hosts: redis
+  remote_hosts: root
+  vars_prompt:
+    - name: "redis_host"
+      prompt: "Please input your redis host"
+      private: yes
+    - name: "redis_port"
+      prompt: "Please input your redis port"
+      private: yes
+    - name: "redis_pd"
+      prompt: "please input your redis password"
+      private: yes
+
+  tasks:
+    - name: 假设redis采用的是cluster集群,显示cluster集群的节点信息
+      command: redis-cli -h {{ redis_host }} -p {{ redis_port }} -c -a {{ redis_pd }} cluster nodes
+
+    - name: 显示cluster的集群信息
+      command: redis-cli -h {{ redis_host }} -p {{ redis_port }} -c -a {{ redis_pd }} clustr info 

@@ -1,0 +1,27 @@
+---
+- host: mysql
+  remote_host: root
+  vars_prompt:
+    - name: "mysql_user"
+      prompt: "Please input your mysql user"
+      private: yes
+    - name: "mysql_pd"
+      prompt: "Please input your mysql password"
+      private: yes
+    - name: "mysql_port"
+      prompt: "please input your mysqk port"
+      private: yes
+
+  tasks:
+    - name: 集群健康性检查
+      shell: <集群健康性检测脚本>
+      register: health_result
+      failed_when: health_result.rc == "error"
+    - name: 找出专门用来备份的节点
+      shell: <找出备份的节点脚本>
+      register: backup_nodes
+    - name: 开始备份
+      command: mysqldump -u{{ mysql_user }} -p{{ mysql_pd }} -P{{ mysql_port }} <各种参数> > <备份的路径>
+      when: ipv4.address == {{ backup_nodes }}
+      
+       

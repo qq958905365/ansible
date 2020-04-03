@@ -1,0 +1,14 @@
+#java应用的管理
+---
+- host: java
+  remote_host: root
+  tasks:
+    - name: java 应用的启动
+      command: <java应用启动的命令>
+
+    - name: java应用的停止
+      command: pid = `ps -aux|grep <java应用> | grep -v grep |awk -F "{'print $2'}"` && for i in $pid;do kill -9 $i;done
+    
+    - name: java应用的进程的查看
+      command: ps -aux|grep <java应用>
+      
