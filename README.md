@@ -7,6 +7,7 @@
 
 
 我选择通过ansible来管理500台服务器，这500台服务器采用zabbix来实现对其监控
+
 一）ansible的安装步骤见“ansible安装”文件夹
     ansible-install为ansible的安装以及配置说明
 
